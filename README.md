@@ -8,4 +8,4 @@ Node.js: React and Next.js
 
 ## Backend
 
-c# program on Raspberry Pi
+C# program on Raspberry Pi
