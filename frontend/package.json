@@ -1,5 +1,5 @@
 {
-  "name": "smart-counter",
+  "name": "smart_counter_frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {

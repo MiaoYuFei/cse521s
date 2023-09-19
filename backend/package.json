@@ -1,0 +1,15 @@
+{
+  "name": "smart_counter_backend",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
