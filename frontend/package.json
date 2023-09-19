@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "license": "MIT",
   "dependencies": {
     "@types/node": "20.6.2",
     "@types/react": "18.2.22",
