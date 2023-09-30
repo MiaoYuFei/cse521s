@@ -1,0 +1,13 @@
+{
+    "name": "cse521s_frontend",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {},
+    "license": "MIT",
+    "dependencies": {
+      "@babel/node": "^7.20.7",
+      "express": "^4.18.2"
+    }
+}
