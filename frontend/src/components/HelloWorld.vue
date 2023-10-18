@@ -1,40 +1,78 @@
-<script setup>
-import { ref } from 'vue'
-
-defineProps({
-  msg: String,
-})
-
-const count = ref(0)
-</script>
-
 <template>
-  <h1>{{ msg }}</h1>
-
-  <div class="card">
-    <button type="button" @click="count++">count is {{ count }}</button>
-    <p>
-      Edit
-      <code>components/HelloWorld.vue</code> to test HMR
-    </p>
-  </div>
-
-  <p>
-    Check out
-    <a href="https://vuejs.org/guide/quick-start.html#local" target="_blank"
-      >create-vue</a
-    >, the official Vue + Vite starter
-  </p>
-  <p>
-    Install
-    <a href="https://github.com/vuejs/language-tools" target="_blank">Volar</a>
-    in your IDE for a better DX
-  </p>
-  <p class="read-the-docs">Click on the Vite and Vue logos to learn more</p>
+  <div class="hello">
+    <div class = "panel panel-primary">
+      <div class = "panel-heading">
+        <h3 class = "panel-title">Add tag</h3>
+      </div>
+      <div class = "panel-body form-inline">
+        <label>
+          ID:
+          <input type = "text" class = "form-control" v-model="id">
+        </label>
+        <label>
+          Name:
+          <input type = "text" class = "form-control" v-model="name">
+        </label>
+        <input type = "button" value = "add" class = "btn btn-primary">
+        <label>
+          Keywords:
+          <input type = "text" class = "form-control" v-model="keywords">
+        </label>
+      </div>
+    </div>
+    <table class = "table table-bordered table honver table-striped">
+      <thead>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Time</th>
+        <th>Operate</th>
+      </thead>
+    </table>
+  </div> 
 </template>
 
+<script lang="ts">
+import Vue from 'vue'
+export default Vue.extend({
+  name: 'HelloWorld',
+  props:{
+    msg:String
+  },
+  data(){
+    return{
+      id: '',
+      name: '',
+      keywords: '',
+      list:[
+        {id: 1, name: 'paper',ctime: new Date()},
+        {id: 2, name: 'bottle',ctime: new Date()},
+        {id: 3, name: 'mouse',ctime: new Date()},
+      ]
+    }
+  },
+  method:{
+    del(id){
+      var index = this.list.findIndex(item =>{
+        if(item.id == id){
+          return true;
+        }
+      })
+      this.list.splice(index, 1)
+    }
+  },
+  search(keywords){
+    return this.list.filter(item =>{
+      if(item.name.includes(keywords)){
+        return item
+      }
+    })
+  }
+
+})
+
+</script>
+
 <style scoped>
-.read-the-docs {
-  color: #888;
-}
+@import  "bootstrap/dist/css/bootstrap.min.css"
+
 </style>
