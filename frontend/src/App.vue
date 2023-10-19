@@ -1,5 +1,5 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import HelloWorld from '/Users/xuruowen/Downloads/cse521s-main/frontend/src/HelloWorld.vue'
 </script>
 
 <template>
