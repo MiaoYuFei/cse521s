@@ -32,7 +32,8 @@
 </template>
 
 <script lang="ts">
-
+import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap"
 export default {
   name: 'HelloWorld',
   props:{
@@ -71,8 +72,3 @@ export default {
 }
 
 </script>
-
-<style scoped>
-@import  "bootstrap/dist/css/bootstrap.min.css"
-
-</style>
