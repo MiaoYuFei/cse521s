@@ -4,25 +4,47 @@ using firmware.Response;
 using System;
 using System.Collections;
 using System.IO.Ports;
+using System.Runtime.InteropServices;
 
 class Program
 {
     static void Main(string[] args)
     {
+        string? portName = null;
         string[] portNames = SerialPort.GetPortNames();
-        RFIDReader reader = new(portNames[0]);
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            portName = portNames[0];
+        }
+        else
+        {
+            foreach (string element in portNames)
+            {
+                if (element.Contains("/dev/ttyACM"))
+                {
+                    portName = element;
+                }
+            }
+            if (portName == null)
+            {
+                throw new NotSupportedException();
+            }
+        }
+
+        RFIDReader reader = new(portName);
         reader.Open();
+        reader.SendCommand(new GetTXPowerCommand());
         Thread th = new(() =>
         {
             while (true)
             {
-                Thread.Sleep(1000);
-                Console.WriteLine("----");
+                Thread.Sleep(500);
+                Console.WriteLine("-->>--");
                 foreach (string tag in reader.Tags)
                 {
                     Console.WriteLine(tag);
                 }
-                Console.WriteLine("----");
+                Console.WriteLine("--<<--");
             }
         });
         th.Start();

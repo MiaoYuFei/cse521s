@@ -134,7 +134,12 @@ namespace firmware
 
         private void ProcessDataFrame(object sender, RFIDReaderDataFrameReceivedEventArgs e)
         {
-            BaseResponse baseResponse = new(e.DataFrame);
+            BaseResponse baseResponse;
+            try {
+                baseResponse = new(e.DataFrame);
+            } catch (Exception) {
+                return;
+            }
             switch (baseResponse.CommandType)
             {
                 case (CommandTypeEnum.EXE_FAILED):
@@ -164,6 +169,12 @@ namespace firmware
                         }
                         break;
                     }
+                case (CommandTypeEnum.GET_POWER):
+                    {
+                        GetTXPowerAnswerResponse response = new(baseResponse);
+                        Console.WriteLine(response.Power + "dBm");
+                        break;
+                    }
                 case (CommandTypeEnum.INVENTORY):
                     {
                         InventoryNoticeResponse response = new(baseResponse);
@@ -185,7 +196,7 @@ namespace firmware
         {
             while (m_IsOpen)
             {
-                this.SendCommand(new MultipleInventoryCommand(50));
+                this.SendCommand(new MultipleInventoryCommand(1000));
                 Thread.Sleep(1000);
                 this.SendCommand(new StopMultipleInventoryCommand());
                 m_TagsLock.EnterWriteLock();
