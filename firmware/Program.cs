@@ -33,14 +33,14 @@ class Program
 
         RFIDReader reader = new(portName);
         reader.Open();
-        reader.SendCommand(new GetTXPowerCommand());
         Thread th = new(() =>
         {
             while (true)
             {
                 Thread.Sleep(500);
                 Console.WriteLine("-->>--");
-                foreach (string tag in reader.Tags)
+                HashSet<string> tags = reader.Tags;
+                foreach (string tag in tags)
                 {
                     Console.WriteLine(tag);
                 }

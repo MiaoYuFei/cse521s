@@ -80,6 +80,7 @@ namespace firmware
                 m_SerialPort.DataReceived += m_Receiver.RFIDReaderRawDataReceivedEventHandler;
                 m_Receiver.RFIDReaderDataFrameReceived += DataFrameReceivedEventHandler;
                 m_IsOpen = true;
+                this.SendCommand(new StopMultipleInventoryCommand());
                 this.SendCommand(new GetModuleInformationCommand(GetModuleInformationCommand.ModuleInfoTypeEnum.HARDWARE));
                 this.SendCommand(new GetModuleInformationCommand(GetModuleInformationCommand.ModuleInfoTypeEnum.SOFTWARE));
                 this.SendCommand(new GetModuleInformationCommand(GetModuleInformationCommand.ModuleInfoTypeEnum.MANUFACTURER));
