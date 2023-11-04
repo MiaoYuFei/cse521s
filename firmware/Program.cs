@@ -8,10 +8,18 @@ using System.Runtime.InteropServices;
 
 class Program
 {
+
+    static RFIDReader? rfidReader;
+
     static void Main(string[] args)
     {
-        string? portName = null;
-        string[] portNames = SerialPort.GetPortNames();
+        AppDomain.CurrentDomain.ProcessExit += ProcApplicationExit;
+        string ? portName = null;
+        string[] ? portNames = null;
+        while (portNames == null || portNames.Length <= 0) {
+            portNames = SerialPort.GetPortNames();
+            Thread.Sleep(5000);
+        }
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             portName = portNames[0];
@@ -31,15 +39,15 @@ class Program
             }
         }
 
-        RFIDReader reader = new(portName);
-        reader.Open();
-        Thread th = new(() =>
+        rfidReader = new(portName);
+        rfidReader.Open();
+        Thread threadTags = new(() =>
         {
             while (true)
             {
                 Thread.Sleep(500);
                 Console.WriteLine("-->>--");
-                HashSet<string> tags = reader.Tags;
+                HashSet<string> tags = rfidReader.Tags;
                 foreach (string tag in tags)
                 {
                     Console.WriteLine(tag);
@@ -47,10 +55,15 @@ class Program
                 Console.WriteLine("--<<--");
             }
         });
-        th.Start();
-        Thread.Sleep(20000);
-        th.Join();
-        reader.Close();
+        threadTags.Start();
+        Thread.Sleep(60000);
+        threadTags.Join();
+        rfidReader.Close();
+    }
+
+    private static void ProcApplicationExit(object? sender, EventArgs e)
+    {
+        rfidReader?.Close();
     }
 
 }

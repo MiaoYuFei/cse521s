@@ -1,6 +1,7 @@
 ﻿using firmware.Command;
 using firmware.Response;
 using System.IO.Ports;
+using static firmware.Command.SetRegionCommand;
 
 namespace firmware
 {
@@ -14,7 +15,9 @@ namespace firmware
         private readonly RFIDReaderReceiver m_Receiver;
 
         public RFIDReaderDataFrameReceivedEventHandler DataFrameReceivedEventHandler { get; private set; }
-        
+
+        public RFIDReaderConnectionClosedEventHandler ConnectionClosedEventHandler { get; private set; }
+
         private volatile bool m_IsOpen = false;
 
         public bool IsOpen { get => m_IsOpen; }
@@ -25,11 +28,19 @@ namespace firmware
 
         public string Manufacturer { get; private set; }
 
+        public ushort TXPower { get; private set; }
+
+        public RegionCodeEnum RegionCode { get; private set; }
+
+        public bool FrequencyHopping { get; private set; }
+
         private readonly ReaderWriterLockSlim m_TagsLock = new();
 
-        public HashSet<string> m_Tags = new();
+        private HashSet<string> m_Tags = new();
 
-        public HashSet<string> m_TagsNew = new();
+        private HashSet<string> m_TagsNew = new();
+
+        private DateTime m_TagLastTime = DateTime.UtcNow;
 
         public HashSet<string> Tags
         {
@@ -58,8 +69,12 @@ namespace firmware
             Hardware = "N/A";
             Software = "N/A";
             Manufacturer = "N/A";
+            TXPower = 0;
+            RegionCode = RegionCodeEnum.US;
+            FrequencyHopping = false;
 
             DataFrameReceivedEventHandler = new RFIDReaderDataFrameReceivedEventHandler(ProcessDataFrame);
+            ConnectionClosedEventHandler = new RFIDReaderConnectionClosedEventHandler(ProcessConnectionClosed);
 
             m_Sender = new RFIDReaderSender(this);
             m_Receiver = new RFIDReaderReceiver();
@@ -79,11 +94,18 @@ namespace firmware
                 m_Sender.Open();
                 m_SerialPort.DataReceived += m_Receiver.RFIDReaderRawDataReceivedEventHandler;
                 m_Receiver.RFIDReaderDataFrameReceived += DataFrameReceivedEventHandler;
+                m_Receiver.RFIDReaderConnectionClosed += ConnectionClosedEventHandler;
                 m_IsOpen = true;
                 this.SendCommand(new StopMultipleInventoryCommand());
                 this.SendCommand(new GetModuleInformationCommand(GetModuleInformationCommand.ModuleInfoTypeEnum.HARDWARE));
                 this.SendCommand(new GetModuleInformationCommand(GetModuleInformationCommand.ModuleInfoTypeEnum.SOFTWARE));
                 this.SendCommand(new GetModuleInformationCommand(GetModuleInformationCommand.ModuleInfoTypeEnum.MANUFACTURER));
+                this.SendCommand(new SetRegionCommand(RegionCodeEnum.US));
+                this.SendCommand(new GetRegionCommand());
+                this.SendCommand(new SetTXPowerCommand(26));
+                this.SendCommand(new GetTXPowerCommand());
+                this.SendCommand(new FrequencyHoppingCommand(true));
+
                 m_ThreadTag.Start();
                 return true;
             }
@@ -122,6 +144,7 @@ namespace firmware
             m_Sender.Close();
             m_SerialPort.DataReceived -= m_Receiver.RFIDReaderRawDataReceivedEventHandler;
             m_Receiver.RFIDReaderDataFrameReceived -= DataFrameReceivedEventHandler;
+            m_Receiver.RFIDReaderConnectionClosed -= ConnectionClosedEventHandler;
             try
             {
                 m_SerialPort.Close();
@@ -136,20 +159,27 @@ namespace firmware
         private void ProcessDataFrame(object sender, RFIDReaderDataFrameReceivedEventArgs e)
         {
             BaseResponse baseResponse;
-            try {
+            try
+            {
                 baseResponse = new(e.DataFrame);
-            } catch (Exception) {
+            }
+            catch (Exception)
+            {
                 return;
             }
             switch (baseResponse.CommandType)
             {
                 case (CommandTypeEnum.EXE_FAILED):
                     {
+                        if (baseResponse.Parameter[0] == 0x15)
+                        {
+                            m_TagLastTime = DateTime.UtcNow;
+                        }
                         break;
                     }
                 case (CommandTypeEnum.GET_MODULE_INFO):
                     {
-                        GetModuleInformationAnswerResponse response = new GetModuleInformationAnswerResponse(baseResponse);
+                        GetModuleInformationAnswerResponse response = new(baseResponse);
                         switch (response.ModuleInfoType)
                         {
                             case GetModuleInformationCommand.ModuleInfoTypeEnum.HARDWARE:
@@ -173,11 +203,23 @@ namespace firmware
                 case (CommandTypeEnum.GET_POWER):
                     {
                         GetTXPowerAnswerResponse response = new(baseResponse);
-                        Console.WriteLine(response.Power + "dBm");
+                        TXPower = response.Power;
+                        break;
+                    }
+                case (CommandTypeEnum.GET_REGION):
+                    {
+                        GetRegionAnswerResponse response = new(baseResponse);
+                        RegionCode = response.RegionCode;
+                        break;
+                    }
+                case (CommandTypeEnum.SET_FHSS):
+                    {
+                        FrequencyHopping = true;
                         break;
                     }
                 case (CommandTypeEnum.INVENTORY):
                     {
+                        m_TagLastTime = DateTime.UtcNow;
                         InventoryNoticeResponse response = new(baseResponse);
                         m_TagsLock.EnterWriteLock();
                         try
@@ -193,25 +235,33 @@ namespace firmware
             }
         }
 
+        private void ProcessConnectionClosed(object sender, RFIDReaderConnectionClosedEventArgs e) {
+            Console.WriteLine("Closed!");
+        }
+
         private void ProcGetTags()
         {
+            this.SendCommand(new MultipleInventoryCommand(10000));
             while (m_IsOpen)
             {
-                this.SendCommand(new MultipleInventoryCommand(1000));
-                Thread.Sleep(1000);
-                this.SendCommand(new StopMultipleInventoryCommand());
                 m_TagsLock.EnterWriteLock();
                 try
                 {
                     (m_TagsNew, m_Tags) = (m_Tags, m_TagsNew);
+                    m_TagsNew.Clear();
                 }
                 finally
                 {
                     m_TagsLock.ExitWriteLock();
                 }
-                m_TagsNew.Clear();
+                TimeSpan timeDifference = DateTime.UtcNow - m_TagLastTime;
+                if (timeDifference.TotalMilliseconds >= 1000)
+                {
+                    this.SendCommand(new StopMultipleInventoryCommand());
+                    this.SendCommand(new MultipleInventoryCommand(10000));
+                }
+                Thread.Sleep(500);
             }
         }
-
     }
 }
