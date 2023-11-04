@@ -5,14 +5,13 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      alias: "/tutorials",
       name: "home",
-      component: () => import("/Users/xuruowen/Downloads/cse521s-main/frontend/src/views/HomeView.vue"),
+      component: () => import("@/views/HomeView.vue"),
     },
     {
       path: "/ManageTag",
       name: "manageTag",
-      component: () => import("/Users/xuruowen/Downloads/cse521s-main/frontend/src/views/ManageTagView.vue"),
+      component: () => import("@/views/ManageTagView.vue"),
     },
   ],
 });
