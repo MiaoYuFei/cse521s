@@ -1,5 +1,6 @@
 ﻿using firmware.Command;
 using firmware.Response;
+using System.Collections.Generic;
 using System.IO.Ports;
 using static firmware.Command.SetRegionCommand;
 
@@ -36,9 +37,7 @@ namespace firmware
 
         private readonly ReaderWriterLockSlim m_TagsLock = new();
 
-        private HashSet<string> m_Tags = new();
-
-        private HashSet<string> m_TagsNew = new();
+        private readonly Dictionary<string, DateTime> m_TagsActivity = new();
 
         private DateTime m_TagLastTime = DateTime.UtcNow;
 
@@ -49,7 +48,7 @@ namespace firmware
                 m_TagsLock.EnterReadLock();
                 try
                 {
-                    return new HashSet<string>(m_Tags);
+                    return new HashSet<string>(m_TagsActivity.Keys);
                 }
                 finally
                 {
@@ -58,7 +57,7 @@ namespace firmware
             }
         }
 
-        private readonly Thread m_ThreadTag;
+        private Thread ? m_ThreadTag;
 
         public RFIDReader(string portName, int baudRate = 115200)
         {
@@ -78,8 +77,6 @@ namespace firmware
 
             m_Sender = new RFIDReaderSender(this);
             m_Receiver = new RFIDReaderReceiver();
-
-            m_ThreadTag = new Thread(ProcGetTags);
         }
 
         public bool Open()
@@ -106,6 +103,7 @@ namespace firmware
                 this.SendCommand(new GetTXPowerCommand());
                 this.SendCommand(new FrequencyHoppingCommand(true));
 
+                m_ThreadTag = new Thread(ProcGetTags);
                 m_ThreadTag.Start();
                 return true;
             }
@@ -139,8 +137,13 @@ namespace firmware
 
         public void Close()
         {
-            m_IsOpen = false;
-            m_ThreadTag.Join();
+            if (m_IsOpen)
+            {
+                this.SendCommand(new StopMultipleInventoryCommand());
+                m_IsOpen = false;
+            }
+            m_ThreadTag?.Join();
+            m_ThreadTag = null;
             m_Sender.Close();
             m_SerialPort.DataReceived -= m_Receiver.RFIDReaderRawDataReceivedEventHandler;
             m_Receiver.RFIDReaderDataFrameReceived -= DataFrameReceivedEventHandler;
@@ -224,7 +227,8 @@ namespace firmware
                         m_TagsLock.EnterWriteLock();
                         try
                         {
-                            m_TagsNew.Add(Util.GetHexStringFromBytes(response.EPC));
+                            string epc = Util.GetHexStringFromBytes(response.EPC);
+                            m_TagsActivity[epc] = DateTime.UtcNow;
                         }
                         finally
                         {
@@ -236,7 +240,7 @@ namespace firmware
         }
 
         private void ProcessConnectionClosed(object sender, RFIDReaderConnectionClosedEventArgs e) {
-            Console.WriteLine("Closed!");
+            Close();
         }
 
         private void ProcGetTags()
@@ -247,8 +251,11 @@ namespace firmware
                 m_TagsLock.EnterWriteLock();
                 try
                 {
-                    (m_TagsNew, m_Tags) = (m_Tags, m_TagsNew);
-                    m_TagsNew.Clear();
+                    IEnumerable<string> keysToRemove = m_TagsActivity.Where(pair => (DateTime.UtcNow - pair.Value).TotalMilliseconds > 1000).Select(pair => pair.Key);
+                    foreach (var key in keysToRemove)
+                    {
+                        m_TagsActivity.Remove(key);
+                    }
                 }
                 finally
                 {
