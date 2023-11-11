@@ -25,14 +25,14 @@
       <thead>
         <th>Id</th>
         <th>Name</th>
-        <th>Time</th>
+        <th>IsDistractor</th>
         <th>Operation</th>
       </thead>
       <tbody>
         <tr v-for="item in list" :key="item.id">
           <td>{{ item.id }}</td>
           <td>{{ item.name }}</td>
-          <td>{{ item.ctime }}</td>
+          <td>{{ item.isTrue}}</td>
           <td>
             <a href="#" @click.prevent="del(item.id)">Delete</a>
           </td>
@@ -49,7 +49,7 @@
 interface ListItem {
   id: string;
   name: string;
-  ctime: Date;
+  isTrue: boolean;
 }
 export default {
   name: "ManageTagView",
@@ -62,20 +62,21 @@ export default {
       name: "",
       keywords: "",
       list: [
-        { id: "1", name: "paper", ctime: new Date() },
-        { id: "2", name: "bottle", ctime: new Date() },
-        { id: "3", name: "mouse", ctime: new Date() },
-        { id: "4", name: "pen", ctime: new Date() },
-        { id: "5", name: "computer", ctime: new Date() },
+        { id: "1", name: "paper", isTrue: true },
+        { id: "2", name: "bottle", isTrue: false },
+        { id: "3", name: "mouse",  isTrue: false },
+        { id: "4", name: "pen", isTrue: true },
+        { id: "5", name: "computer", isTrue: true },
       ] as ListItem[],
     };
   },
   methods: {
     add() {
-      var item: ListItem = { id: this.id, name: this.name, ctime: new Date() };
+      var item: ListItem = { id: this.id, name: this.name, isTrue: this.isTrue};
       this.list.push(item);
       this.id = "";
       this.name = "";
+      this.isTrue = true;
     },
 
     del(id: string) {

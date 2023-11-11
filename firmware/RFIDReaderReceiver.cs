@@ -11,12 +11,15 @@ namespace firmware
         }
     }
 
+    public class RFIDReaderConnectionClosedEventArgs : EventArgs
+    {
+        public RFIDReaderConnectionClosedEventArgs()
+        { }
+    }
+
     public delegate void RFIDReaderDataFrameReceivedEventHandler(object sender, RFIDReaderDataFrameReceivedEventArgs e);
 
-    public class RFIDReaderConnectionClosedReceivedEventArgs : EventArgs
-    { }
-
-    public delegate void RFIDReaderConnectionClosedEventHandler(object sender, RFIDReaderConnectionClosedReceivedEventArgs e);
+    public delegate void RFIDReaderConnectionClosedEventHandler(object sender, RFIDReaderConnectionClosedEventArgs e);
 
     internal class RFIDReaderReceiver
     {
@@ -46,13 +49,12 @@ namespace firmware
             SerialPort reader = (SerialPort)sender;
             if (!reader.IsOpen)
             {
-                RFIDReaderConnectionClosed?.Invoke(sender, new RFIDReaderConnectionClosedReceivedEventArgs());
+                RFIDReaderConnectionClosed?.Invoke(sender, new RFIDReaderConnectionClosedEventArgs());
                 return;
             }
             int bytesToRead = reader.BytesToRead;
             if (bytesToRead == 0)
             {
-                RFIDReaderConnectionClosed?.Invoke(sender, new RFIDReaderConnectionClosedReceivedEventArgs());
                 return;
             }
 
