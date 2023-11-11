@@ -1,7 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import { iot, mqtt, io } from "aws-iot-device-sdk-v2";
-import mysql from 'mysq12';
 const decoder = new TextDecoder('utf8');
 
 const app = express();
@@ -9,50 +8,6 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 app.use(bodyParser.urlencoded({ extended: true }));
-
-const dbConfig = {
-  host: 'localhost',
-  user: 'root',
-  password: 'mylove252421',
-  database: 'cse521s',
-};
-
-// Create a connection pool
-const pool = mysql.createPool(dbConfig);
-
-// Example query with parameters using a prepared statement
-const id = 1;
-const query = 'SELECT * FROM users WHERE id = 1';
-
-// Get a connection from the pool
-pool.getConnection((err, connection) => {
-  if (err) {
-    console.error('Error connecting to database:', err);
-    return;
-  }
-
-  // Use the connection for the query with parameters
-  connection.query(query, [id], (error, results, fields) => {
-    // Release the connection when done
-    connection.release();
-
-    if (error) {
-      console.error('Error executing query:', error);
-      return;
-    }
-
-    console.log('Query results:', results);
-  });
-});
-
-// Close the pool when the application is finished
-pool.end(err => {
-  if (err) {
-    console.error('Error closing the database pool:', err);
-  } else {
-    console.log('Database pool closed.');
-  }
-});
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
