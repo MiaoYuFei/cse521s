@@ -2,24 +2,69 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { iot, mqtt, io } from "aws-iot-device-sdk-v2";
 const decoder = new TextDecoder('utf8');
+import dbconn from './dbConfig.js';
 
 const app = express();
 app.use(bodyParser.json());
 app.use(express.json());
-
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+app.post('/getAllTags', async (req, res) => {
+  let payload = {
+    "success": false
+  };
+
+  try {
+    const [result] = await dbconn.execute('SELECT `tag_id`, `name`, `is_distractor` FROM `521tag`;');
+    payload["success"] = true;
+    payload["tags"] = result;
+  }
+  catch (err) {
+    console.error(err);
+    payload["success"] = false;
+    payload["error"] = { "message": err.message };
+  }
+  finally {
+    res.json(payload);
+  }
 });
 
-app.post('/getExampleData', (req, res) => {
-  const result = {
-    title: "POST request with Axios",
-    body: "POST request",
-    userId: 10,
+app.post('/addTag', async (req, res) => {
+  let payload = {
+    "success": false
   };
-  res.json(result);
+  if (!req.body) {
+    payload["success"] = false;
+    payload["error"] = { "message": "Bad request" };
+    res.status(400).json(payload);
+    return;
+  }
+  const { tag_id: data_tag_id, name: data_name, is_distractor: data_is_distractor } = req.body;
+  if (data_tag_id === undefined || data_name === undefined || data_is_distractor === undefined) {
+    payload["success"] = false;
+    payload["error"] = { "message": "Bad request" };
+    res.status(400).json(payload);
+    return;
+  }
+
+  try {
+    const [result] = await dbconn.execute('INSERT INTO `521tag` (`tag_id`, `name`, `is_distractor`) VALUES (?, ?, ?);',
+      [data_tag_id, data_name, data_is_distractor]);
+    if (result.affectedRows <= 0) {
+      payload["success"] = false;
+      console.error("Failed to add tag.");
+    } else {
+      payload["success"] = true;
+    }
+  }
+  catch (err) {
+    console.error(err);
+    payload["success"] = false;
+    payload["error"] = { "message": err.message };
+  }
+  finally {
+    res.json(payload);
+  }
 });
 
 // Setup AWS IoT
@@ -48,11 +93,13 @@ iotConn.on("error", (eventData) => {
 });
 iotConn.connect();
 
+// Received tag scan result from AWSIoT
 async function onIotTagScanResultReceived(topic, payload, dup, qos, retain) {
   const json = JSON.parse(decoder.decode(payload));
   console.log(json);
 }
 
+// Received reader status update from AWSIoT
 async function onIotStatusReceived(topic, payload, dup, qos, retain) {
   const json = JSON.parse(decoder.decode(payload));
   console.log(json);
@@ -62,4 +109,10 @@ async function onIotStatusReceived(topic, payload, dup, qos, retain) {
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+});
+
+// Close db connection when exit
+process.on('SIGINT', async () => {
+  await dbconn.end();
+  process.exit();
 });
