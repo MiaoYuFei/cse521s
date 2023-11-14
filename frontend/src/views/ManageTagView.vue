@@ -43,7 +43,13 @@
       </tbody>
     </table>
   </div>
+  <div>
+    <h1>Send Data to Backend</h1>
+    <button @click="sendData">Send Data</button>
+  </div>
 </template>
+
+import axios from 'axios';
 
 <script lang="ts">
 interface ListItem {
@@ -71,6 +77,25 @@ export default {
     };
   },
   methods: {
+    sendData() {
+      // Replace the URL with your backend API endpoint
+      const backendURL = 'http://localhost:3000/addTag';
+
+      // Replace this with the data you want to send to the backend
+      const dataToSend = {
+        id: '',
+        name: '',
+        isTrue: 'true',
+      };
+
+      axios.post(backendURL, dataToSend)
+        .then(response => {
+          console.log('Backend response:', response.data);
+        })
+        .catch(error => {
+          console.error('Error sending data to the backend:', error);
+        });
+    },
     add() {
       var item: ListItem = { id: this.id, name: this.name, isTrue: this.isTrue};
       this.list.push(item);
