@@ -122,17 +122,12 @@ let tagsList = [];
 // Received tag scan result from AWSIoT
 async function onIotTagScanResultReceived(topic, payload, dup, qos, retain) {
   const json = JSON.parse(decoder.decode(payload));
-  if (json.has("tags")) {
+  if ("tags" in json) {
     // Return the value associated with the key "tags"
-    const tagsValue =  json.get("tags");
     // update the list
-    tagsList = tagsValue;
-    return tagsValue;
-  } else {
-    // Return a default value or handle the case where the key is not present
-    return null;
-  }
-  console.log(tagsValue);//map key=tags return value 
+    tagsList = json["tags"];
+  } 
+  console.log(tagsList);
 }
 
 // Received reader status update from AWSIoT
