@@ -44,8 +44,10 @@
     </table>
   </div>
   <div>
-    <h1>Send Data to Backend</h1>
-    <button @click="sendData">Send Data</button>
+    <h1>Tag IDs</h1>
+    <ul>
+      <li v-for="tagId in tagIds" :key="tagId">{{ tagId }}</li>
+    </ul>
   </div>
 </template>
 
@@ -64,6 +66,7 @@ export default {
   },
   data() {
     return {
+      tagIds: [],
       id: "",
       name: "",
       keywords: "",
@@ -76,15 +79,32 @@ export default {
       ] as ListItem[],
     };
   },
+
+  mounted() {
+    // Fetch tag IDs every second
+    this.fetchTagIds();
+    setInterval(this.fetchTagIds, 1000);
+  },
+
   methods: {
+    async fetchTagIds() {
+      try {
+        // actual backend API endpoint
+        const response = await axios.get('http://localhost:3000/getAllTags');
+        this.tagIds = response.data; //  an array of tag IDs
+      } catch (error) {
+        console.error('Error fetching tag IDs:', error);
+      }
+    },
+
     sendData() {
       // Replace the URL with your backend API endpoint
       const backendURL = 'http://localhost:3000/addTag';
 
       // Replace this with the data you want to send to the backend
       const dataToSend = {
-        id: '',
-        name: '',
+        id: 'bbbbb',
+        name: 'sugar',
         isTrue: 'true',
       };
 
@@ -96,6 +116,7 @@ export default {
           console.error('Error sending data to the backend:', error);
         });
     },
+
     add() {
       var item: ListItem = { id: this.id, name: this.name, isTrue: this.isTrue};
       this.list.push(item);

@@ -67,29 +67,10 @@ app.post('/addTag', async (req, res) => {
   }
 });
 
-app.post('/deleteTag', async (req, res) => {
-  let payload = {
-    "success": false
-  };
-
-  try {
-    const [result] = await dbconn.execute('INSERT INTO `521tag` (`tag_id`, `name`, `is_distractor`) VALUES (?, ?, ?);',
-      [data_tag_id, data_name, data_is_distractor]);
-    if (result.affectedRows <= 0) {
-      payload["success"] = false;
-      console.error("Failed to add tag.");
-    } else {
-      payload["success"] = true;
-    }
-  }
-  catch (err) {
-    console.error(err);
-    payload["success"] = false;
-    payload["error"] = { "message": err.message };
-  }
-  finally {
-    res.json(payload);
-  }
+const tagIds = ['tag1', 'tag2', 'tag3', 'tag4'];
+// API endpoint to get tag IDs
+app.get('/getTagId', (req, res) => {
+  res.json(tagIds);
 });
 
 // Setup AWS IoT
