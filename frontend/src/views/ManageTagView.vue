@@ -1,68 +1,119 @@
 <template>
-  <div class="app">
-    <div class="panel panel-primary">
-      <div class="panel-heading">
-        <h3 class="panel-title">
-          Tag Manager
-        </h3>
-      </div>
-      <div class="panel-body form-inline">
-        <label>
-          ID:
-          <input
-            v-model="id"
-            type="text"
-            class="form-control"
-          >
-        </label>
-        <label>
-          Name:
-          <input
-            v-model="name"
-            type="text"
-            class="form-control"
-          >
-        </label>
-        <input
-          type="button"
-          value="add"
-          class="btn btn-primary"
-          @click="add()"
-        >
+  <div>
+    <BsNavbar />
+    <div class="container">
+      <div class="card m-2">
+        <div class="card-body">
+          <h1 class="card-title">
+            Tag Manager
+          </h1>
+          <div class="card-text">
+            <form>
+              <div class="mb-3">
+                <label
+                  for="idNewTagId"
+                  class="form-label"
+                >Tag Id</label>
+                <input
+                  id="idNewTagId"
+                  type="text"
+                  class="form-control"
+                  required
+                >
+              </div>
+              <div class="mb-3">
+                <label
+                  for="idNewName"
+                  class="form-label"
+                >Tag Name</label>
+                <input
+                  id="idNewName"
+                  type="text"
+                  class="form-control"
+                  required
+                >
+              </div>
+              <div class="mb-3 w-50">
+                <label
+                  for="idNewName"
+                  class="form-label"
+                >Is it distractor</label>
+                <div
+                  class="btn-group form-control"
+                  role="group"
+                  aria-label="Is it a distractor"
+                >
+                  <input
+                    id="idNewIsDistractor"
+                    type="radio"
+                    class="btn-check"
+                    name="btnradio"
+                    autocomplete="off"
+                    checked
+                  >
+                  <label
+                    class="btn btn-outline-primary"
+                    for="idNewIsDistractor"
+                  >Yes</label>
+
+                  <input
+                    id="idNewNotDistractor"
+                    type="radio"
+                    class="btn-check"
+                    name="btnradio"
+                    autocomplete="off"
+                  >
+                  <label
+                    class="btn btn-outline-primary"
+                    for="idNewNotDistractor"
+                  >No</label>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  @click="add()"
+                >
+                  Add
+                </button>
+              </div>
+            </form>
+            <hr>
+            <table class="table table-bordered table-striped">
+              <thead>
+                <th>Tag Id</th>
+                <th>Name</th>
+                <th>Is Distractor</th>
+                <th>Operations</th>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="item in list"
+                  :key="item.id"
+                >
+                  <td>{{ item.id }}</td>
+                  <td>{{ item.name }}</td>
+                  <td>{{ item.isTrue }}</td>
+                  <td>
+                    <button class="btn btn-sm btn-primary mx-2">Edit</button>
+                    <button class="btn btn-sm btn-danger mx-2" @click="del(item.id)">Delete</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
-    <table class="table table-bordered table honver table-striped">
-      <thead>
-        <th>Id</th>
-        <th>Name</th>
-        <th>IsDistractor</th>
-        <th>Operation</th>
-      </thead>
-      <tbody>
-        <tr
-          v-for="item in list"
-          :key="item.id"
-        >
-          <td>{{ item.id }}</td>
-          <td>{{ item.name }}</td>
-          <td>{{ item.isTrue }}</td>
-          <td>
-            <a
-              href="#"
-              @click.prevent="del(item.id)"
-            >Delete</a>
-          </td>
-          <td>
-            <a href="#">Edit</a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 </template>
 
 <script lang="ts">
+import BsNavbar from "@/components/BsNavbar.vue";
 import axios from "axios";
+
 interface ListItem {
   id: string;
   name: string;
@@ -70,6 +121,7 @@ interface ListItem {
 }
 export default {
   name: "ManageTagView",
+  components: { BsNavbar },
   props: {
     msg: String,
   },
@@ -87,7 +139,6 @@ export default {
       ] as ListItem[],
     };
   },
-
   methods: {
     sendData() {
       // Replace the URL with your backend API endpoint
