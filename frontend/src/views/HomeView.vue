@@ -1,7 +1,10 @@
 <template>
   <div>
     <BsNavbar />
-    <div class="container">
+    <div
+      class="container"
+      style="font-family: 'Nunito', sans-serif;"
+    >
       <div class="card m-2">
         <div class="card-body">
           <h1 class="card-title">
