@@ -24,7 +24,6 @@ class TutorialDataService {
   deleteAll() {
     return http.delete(`/tutorials`);
   }
-
 }
 
 export default new TutorialDataService();

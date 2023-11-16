@@ -1,14 +1,15 @@
 {
     "files": [],
-    "references": [
-      {
-        "path": "./tsconfig.config.json"
-      },
-      {
-        "path": "./tsconfig.app.json"
-      },
-      {
-        "path": "./tsconfig.vitest.json"
+    "extends": "@vue/tsconfig/tsconfig.dom.json",
+    "include": ["vite.config.*", "cypress.config.*", "playwright.config.*"],
+    "compilerOptions": {
+      "module": "es2022",
+      "moduleResolution": "Node",
+      "composite": true,
+      "types": ["node"],
+      "baseUrl": ".",
+      "paths": {
+        "@/*": ["./src/*"]
       }
-    ]
+    }
 }

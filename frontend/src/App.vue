@@ -11,6 +11,9 @@ export default {
 
 <template>
   <div>
-    <RouterView class="flex-fill" style="min-height: 0" />
+    <RouterView
+      class="flex-fill"
+      style="min-height: 0"
+    />
   </div>
 </template>
