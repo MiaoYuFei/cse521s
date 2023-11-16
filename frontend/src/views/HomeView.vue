@@ -45,8 +45,8 @@ export default {
     async fetchTagIds() {
       try {
         // actual backend API endpoint
-        const response = await axios.get("/api/getScanResult");
-        this.tagIds = response.data; //  an array of tag IDs
+        const response = await axios.post("/api/getScanResult");
+        this.tagIds = response.data.tags; //  an array of tag IDs
       } catch (error) {
         console.error("Error fetching tag IDs:", error);
       }
