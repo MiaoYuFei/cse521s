@@ -1,24 +1,19 @@
 <template>
   <div>
-    <h1>Home</h1>
-    <button
-      type="button"
-      class="btn btn-primary"
-      @click="navigateToManageTag"
-    >
-      Manage Tags
-    </button>
-  </div>
-  <div>
-    <h1>Tag IDs</h1>
-    <ul>
-      <li
-        v-for="tagId in tagIds"
-        :key="tagId"
-      >
-        {{ tagId }}
-      </li>
-    </ul>
+    <div>
+      <h1>Home</h1>
+      <button type="button" class="btn btn-primary" @click="navigateToManageTag">
+        Manage Tags
+      </button>
+    </div>
+    <div>
+      <h1>Tag IDs</h1>
+      <ul>
+        <li v-for="tagId in tagIds" :key="tagId">
+          {{ tagId }}
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 

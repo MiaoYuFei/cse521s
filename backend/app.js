@@ -110,7 +110,6 @@ async function onIotTagScanResultReceived(topic, payload, dup, qos, retain) {
     // update the list
     tagsList = json["tags"];
   } 
-  console.log(tagsList);
 }
 
 // Received reader status update from AWSIoT
