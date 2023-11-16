@@ -8,7 +8,7 @@
       <div class="card m-2">
         <div class="card-body">
           <h1 class="card-title">
-            Tag IDs
+            Tag Scanned
           </h1>
           <div class="card-text">
             <h5 v-if="tagIds.length <= 0">
