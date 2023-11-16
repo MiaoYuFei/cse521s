@@ -17,7 +17,7 @@ export default {
         to="/"
       >
         <img
-          src="/src/assets/vue.svg"
+          src="/src/assets/logo.png"
           alt="Logo"
           width="30"
           height="24"
