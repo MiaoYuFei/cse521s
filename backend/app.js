@@ -69,9 +69,9 @@ app.post('/addTag', async (req, res) => {
 
 // API endpoint to get tag IDs
 app.post('/getScanResult', (req, res) => {
-  const myMap = new Map();
+  const myMap = {};
   const tagsValue = tagsList.slice();
-  myMap.set("tags", tagsValue);
+  myMap["tags"] = tagsValue;
   res.json(myMap);
 });
 
