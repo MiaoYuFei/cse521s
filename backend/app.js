@@ -67,10 +67,12 @@ app.post('/addTag', async (req, res) => {
   }
 });
 
-const tagIds = ['tag1', 'tag2', 'tag3', 'tag4'];
 // API endpoint to get tag IDs
-app.get('/getTagId', (req, res) => {
-  res.json(tagIds);
+app.post('/getScanResult', (req, res) => {
+  const myMap = new Map();
+  const tagsValue = tagsList.slice();
+  myMap.set("tags", tagsValue);
+  res.json(myMap);
 });
 
 // Setup AWS IoT

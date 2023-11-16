@@ -43,17 +43,10 @@
       </tbody>
     </table>
   </div>
-  <div>
-    <h1>Tag IDs</h1>
-    <ul>
-      <li v-for="tagId in tagIds" :key="tagId">{{ tagId }}</li>
-    </ul>
-  </div>
 </template>
 
-import axios from 'axios';
-
 <script lang="ts">
+import axios from 'axios';
 interface ListItem {
   id: string;
   name: string;
@@ -66,37 +59,21 @@ export default {
   },
   data() {
     return {
-      tagIds: [],
       id: "",
       name: "",
       keywords: "",
       list: [
         { id: "1", name: "paper", isTrue: true },
         { id: "2", name: "bottle", isTrue: false },
-        { id: "3", name: "mouse",  isTrue: false },
+        { id: "3", name: "mouse", isTrue: false },
         { id: "4", name: "pen", isTrue: true },
         { id: "5", name: "computer", isTrue: true },
       ] as ListItem[],
     };
   },
 
-  mounted() {
-    // Fetch tag IDs every second
-    this.fetchTagIds();
-    setInterval(this.fetchTagIds, 1000);
-  },
 
   methods: {
-    async fetchTagIds() {
-      try {
-        // actual backend API endpoint
-        const response = await axios.get('http://localhost:3000/getAllTags');
-        this.tagIds = response.data; //  an array of tag IDs
-      } catch (error) {
-        console.error('Error fetching tag IDs:', error);
-      }
-    },
-
     sendData() {
       // Replace the URL with your backend API endpoint
       const backendURL = 'http://localhost:3000/addTag';
