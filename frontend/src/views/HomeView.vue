@@ -22,7 +22,7 @@
                   <li
                     v-for="tagId in tagIds"
                     :key="tagId"
-                    style="background-color: rgb(0, 200, 0);"
+                    style="background-color: #8B9DC3;"
                     class="mx-2 my-2 p-2"
                   >
                     <span style="font-weight: bold;">Item Name</span>
@@ -39,7 +39,7 @@
                   <li
                     v-for="tagId in tagIds"
                     :key="tagId"
-                    style="background-color: rgb(255, 65, 65);"
+                    style="background-color: #DFE3EE;"
                     class="mx-2 my-2 p-2"
                   >
                     <span style="font-weight: bold;">Item Name</span>
