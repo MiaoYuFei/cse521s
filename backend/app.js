@@ -39,14 +39,19 @@ app.post('/addTag', async (req, res) => {
     res.status(400).json(payload);
     return;
   }
-  const { tag_id: data_tag_id, name: data_name, is_distractor: data_is_distractor } = req.body;
+  let { tag_id: data_tag_id, name: data_name, is_distractor: data_is_distractor } = req.body;
   if (data_tag_id === undefined || data_name === undefined || data_is_distractor === undefined) {
     payload["success"] = false;
     payload["error"] = { "message": "Bad request" };
     res.status(400).json(payload);
     return;
   }
-
+  if(data_is_distractor == "true"){
+    data_is_distractor = 1;
+  }
+  else{
+    data_is_distractor = 0;
+  }
   try {
     const [result] = await dbconn.execute('INSERT INTO `521tag` (`tag_id`, `name`, `is_distractor`) VALUES (?, ?, ?);',
       [data_tag_id, data_name, data_is_distractor]);
@@ -67,6 +72,7 @@ app.post('/addTag', async (req, res) => {
   }
 });
 
+
 // API endpoint to get tag IDs
 app.post('/getScanResult', (req, res) => {
   const myMap = {};
@@ -74,6 +80,23 @@ app.post('/getScanResult', (req, res) => {
   myMap["tags"] = tagsValue;
   res.json(myMap);
 });
+
+//delete a tag by its ID
+app.delete('/deleteTag', async (req, res) => {
+  try {
+    const tagId = req.params.tagId;
+    const connection = await dbPool.getConnection();
+
+    await connection.query('DELETE FROM tags WHERE id = ?', [tagId]);
+    connection.release();
+
+    res.status(200).json({ message: 'Tag deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting tag:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 
 // Setup AWS IoT
 let iotConfigBuilder = iot.AwsIotMqttConnectionConfigBuilder.new_with_websockets({
