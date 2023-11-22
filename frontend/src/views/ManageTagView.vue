@@ -1,7 +1,10 @@
 <template>
   <div>
     <BsNavbar />
-    <div class="container">
+    <div
+      class="container"
+      style="font-family: 'Nunito', sans-serif;"
+    >
       <div class="card m-2">
         <div class="card-body">
           <h1 class="card-title">
@@ -35,7 +38,10 @@
                   required
                 >
               </div>
-              <div class="mb-3 w-50">
+              <div
+                class="mb-3"
+                style="max-width: 16em;"
+              >
                 <label
                   for="idNewName"
                   class="form-label"
@@ -99,8 +105,20 @@
                   <td>{{ item.name }}</td>
                   <td>{{ item.is_distractor }}</td>
                   <td>
+<<<<<<< HEAD
                     <button class="btn btn-sm btn-primary mx-2">Edit</button>
                     <button class="btn btn-sm btn-danger mx-2" @click="del(item.tag_id)">Delete</button>
+=======
+                    <button class="btn btn-sm btn-primary mx-2">
+                      Edit
+                    </button>
+                    <button
+                      class="btn btn-sm btn-danger mx-2"
+                      @click="del(item.id)"
+                    >
+                      Delete
+                    </button>
+>>>>>>> a5ee212bf8d4b7b9796bdebd1983e3cf3fbf2c34
                   </td>
                 </tr>
               </tbody>
