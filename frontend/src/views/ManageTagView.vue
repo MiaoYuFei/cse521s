@@ -13,11 +13,12 @@
                 <label
                   for="idNewTagId"
                   class="form-label"
-                >Tag Id</label>
+                >Tag ID</label>
                 <input
                   id="idNewTagId"
                   type="text"
                   class="form-control"
+                  v-model="tag_id"
                   required
                 >
               </div>
@@ -30,6 +31,7 @@
                   id="idNewName"
                   type="text"
                   class="form-control"
+                  v-model="name"
                   required
                 >
               </div>
@@ -74,7 +76,7 @@
                 <button
                   type="button"
                   class="btn btn-primary"
-                  @click="add()"
+                  @click="addTag()"
                 >
                   Add
                 </button>
@@ -90,15 +92,15 @@
               </thead>
               <tbody>
                 <tr
-                  v-for="item in list"
-                  :key="item.id"
+                  v-for="item in tagList"
+                  :key="item.tag_id"
                 >
-                  <td>{{ item.id }}</td>
+                  <td>{{ item.tag_id }}</td>
                   <td>{{ item.name }}</td>
-                  <td>{{ item.isTrue }}</td>
+                  <td>{{ item.is_distractor }}</td>
                   <td>
                     <button class="btn btn-sm btn-primary mx-2">Edit</button>
-                    <button class="btn btn-sm btn-danger mx-2" @click="del(item.id)">Delete</button>
+                    <button class="btn btn-sm btn-danger mx-2" @click="del(item.tag_id)">Delete</button>
                   </td>
                 </tr>
               </tbody>
@@ -114,80 +116,77 @@
 import BsNavbar from "@/components/BsNavbar.vue";
 import axios from "axios";
 
-interface ListItem {
-  id: string;
+interface TagItem {
+  tag_id: string;
   name: string;
-  isTrue: boolean;
+  is_distractor: boolean;
 }
 export default {
   name: "ManageTagView",
   components: { BsNavbar },
   props: {
-    msg: String,
   },
   data() {
     return {
-      id: "",
+      tag_id: "",
       name: "",
-      keywords: "",
-      list: [
-        { id: "1", name: "paper", isTrue: true },
-        { id: "2", name: "bottle", isTrue: false },
-        { id: "3", name: "mouse", isTrue: false },
-        { id: "4", name: "pen", isTrue: true },
-        { id: "5", name: "computer", isTrue: true },
-      ] as ListItem[],
+      tagList: [] as TagItem[],
     };
   },
+  mounted() {
+        // Fetch tag IDs every second
+        this.fetchTagIds();
+    },
   methods: {
-    sendData() {
+     fetchTagIds() {
+        axios.post('/api/getAllTags').then((response) => {
+          if (response.data.success) {
+          // Assign the 'tags' to the data property
+          this.tagList = response.data.tags;
+          console.log(this.tagList);
+        } else {
+          console.error("API response indicates failure");
+          // Handle the case where success is false
+        }
+        });   
+    },
+    addTag() {
       // Replace the URL with your backend API endpoint
-      const backendURL = "http://localhost:3000/addTag";
+      const backendURL = "/api/addTag";
 
       // Replace this with the data you want to send to the backend
       const dataToSend = {
-        id: "bbbbb",
-        name: "sugar",
-        isTrue: "true",
+        tag_id: this.tag_id,
+        name: this.name,
+        is_distractor: "true",
       };
-
+      
       axios
         .post(backendURL, dataToSend)
         .then((response) => {
           console.log("Backend response:", response.data);
+          if (response.data.success) {
+          // Assign the 'tags' to the data property
+          this.fetchTagIds();
+        } else {
+          console.error("API response indicates failure");
+          // Handle the case where success is false
+        }
         })
         .catch((error) => {
           console.error("Error sending data to the backend:", error);
         });
-    },
-
-    add() {
-      var item: ListItem = {
-        id: this.id,
-        name: this.name,
-        isTrue: this.isTrue,
-      };
-      this.list.push(item);
-      this.id = "";
-      this.name = "";
-      this.isTrue = true;
-    },
-
-    del(id: string) {
-      var index = this.list.findIndex((item) => {
-        if (item.id == id) {
-          return true;
-        }
-      });
-      this.list.splice(index, 1);
-    },
-  },
-  search(keywords: string) {
-    return this.list.filter((item) => {
-      if (item.name.includes(keywords)) {
-        return item;
       }
-    });
-  },
-};
+    },
+
+    del(tagId: string) {
+      try {
+        axios.delete(`/api/deleteTag/${tagId}`); // Replace with your backend API URL
+        // Remove the deleted tag from the local tags array to update the UI
+        this.tags = this.tags.filter(tag => tag.id !== tagId);
+      } catch (error) {
+        console.error('Error deleting tag:', error);
+      }
+    },
+  };
 </script>
