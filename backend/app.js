@@ -82,18 +82,26 @@ app.post('/getScanResult', (req, res) => {
 });
 
 //delete a tag by its ID
-app.delete('/deleteTag', async (req, res) => {
+app.post('/deleteTag', async(req, res) => {
+  let payload = {
+    "success": false
+  };
+  
+  const tagId = req.body.tagId; 
   try {
-    const tagId = req.params.tagId;
-    const connection = await dbPool.getConnection();
-
-    await connection.query('DELETE FROM tags WHERE id = ?', [tagId]);
-    connection.release();
-
-    res.status(200).json({ message: 'Tag deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting tag:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    const [result] = await dbconn.execute('DELETE FROM `521tag` WHERE `tag_id` = ?;', [tagId]);
+  
+    if (result.affectedRows === 1) {
+      payload["success"] = true;
+      payload["message"] = `Tag with ID ${tagId} deleted successfully.`;
+    } else {
+      payload["message"] = `Tag with ID ${tagId} not found.`;
+    }
+  } catch (err) {
+    console.error(err);
+    payload["error"] = { "message": err.message };
+  } finally {
+    res.json(payload);
   }
 });
 

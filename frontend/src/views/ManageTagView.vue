@@ -105,20 +105,8 @@
                   <td>{{ item.name }}</td>
                   <td>{{ item.is_distractor }}</td>
                   <td>
-<<<<<<< HEAD
                     <button class="btn btn-sm btn-primary mx-2">Edit</button>
-                    <button class="btn btn-sm btn-danger mx-2" @click="del(item.tag_id)">Delete</button>
-=======
-                    <button class="btn btn-sm btn-primary mx-2">
-                      Edit
-                    </button>
-                    <button
-                      class="btn btn-sm btn-danger mx-2"
-                      @click="del(item.id)"
-                    >
-                      Delete
-                    </button>
->>>>>>> a5ee212bf8d4b7b9796bdebd1983e3cf3fbf2c34
+                    <button class="btn btn-sm btn-danger mx-2" @click="deleteTag(item.tag_id)">Delete</button>
                   </td>
                 </tr>
               </tbody>
@@ -168,6 +156,28 @@ export default {
         }
         });   
     },
+    deleteTag(tagId: string) {
+      // Replace the URL with your backend API endpoint
+      const backendURL = "/api/deleteTag";
+      const dataToSend = {
+        tagId: tagId,
+      }; 
+      axios
+        .post(backendURL,dataToSend)
+        .then((response) => {
+          console.log('Backend response:', response.data);
+          if (response.data.success) {
+            // Call a method to refresh the list of tags after successful deletion
+            this.fetchTagIds();
+          } else {
+            console.error('API response indicates failure');
+            // Handle the case where success is false
+          }
+        })
+        .catch((error) => {
+          console.error('Error sending data to the backend:', error);
+        });
+    },
     addTag() {
       // Replace the URL with your backend API endpoint
       const backendURL = "/api/addTag";
@@ -194,16 +204,6 @@ export default {
         .catch((error) => {
           console.error("Error sending data to the backend:", error);
         });
-      }
-    },
-
-    del(tagId: string) {
-      try {
-        axios.delete(`/api/deleteTag/${tagId}`); // Replace with your backend API URL
-        // Remove the deleted tag from the local tags array to update the UI
-        this.tags = this.tags.filter(tag => tag.id !== tagId);
-      } catch (error) {
-        console.error('Error deleting tag:', error);
       }
     },
   };
