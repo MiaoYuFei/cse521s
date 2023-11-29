@@ -79,12 +79,34 @@ app.post('/addTag', async (req, res) => {
   }
 });
 
-// API endpoint to get tag IDs
-app.post('/getScanResult', (req, res) => {
-  const myMap = {};
-  const tagsValue = tagsList.slice();
-  myMap["tags"] = tagsValue;
-  res.json(myMap);
+// API endpoint to get scan tag IDs
+app.post('/getScanResult', async (req, res) => {
+  const tagsIdArray = tagsList.slice();
+  const myMap = {
+    "success": false,
+    "tags":[],
+  };
+  try {
+    const query = 'SELECT `tag_id`, `name`, `is_distractor` FROM `521tag` WHERE `tag_id` IN (?)';
+    const [result] = await dbconn.execute(query, [tagsIdArray]);
+    myMap["success"] = true;
+    result.forEach((element) => {
+      if (element["is_distractor"] === "1" || element["is_distractor"] === 1) {
+        element["is_distractor"] = "true";
+      } else {
+        element["is_distractor"] = "false";
+      }
+    });
+    myMap["tags"] = result;
+  }
+  catch (err) {
+    console.error(err);
+    myMap["success"] = false;
+    myMap["error"] = { "message": err.message };
+  }
+  finally {
+    res.json(myMap);
+  }
 });
 
 //delete a tag by its ID
