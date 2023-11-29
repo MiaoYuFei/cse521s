@@ -120,6 +120,7 @@ export default {
   data() {
     return {
       tags: [] as TagItem[],
+      scanTimer: Number,
     };
   },
   computed: {
@@ -135,20 +136,26 @@ export default {
   },
   mounted() {
     this.fetchTagIds();
-    setInterval(this.fetchTagIds, 1000);
+  },
+  unmounted() {
+    clearInterval(this.scanTimer);
   },
   methods: {
     navigateToManageTag() {
       this.$router.push("/ManageTag");
     },
-    async fetchTagIds() {
-      try {
-        const response = await axios.post("/api/getScanResult");
-        this.tags = response.data.tags;
-      }
-      catch (error) {
-        console.error("Error fetching tag IDs:", error);
-      }
+    fetchTagIds() {
+      clearInterval(this.scanTimer);
+      axios.post("/api/getScanResult")
+        .then((response) => {
+          this.tags = response.data.tags;
+        })
+        .catch((error) => {
+          console.error("Error fetching tag IDs:", error);
+        })
+        .finally(() => {
+          this.scanTimer = setInterval(this.fetchTagIds, 500);
+        });
     },
   }
 };
