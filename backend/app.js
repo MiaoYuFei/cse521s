@@ -18,6 +18,13 @@ app.post('/getAllTags', async (req, res) => {
     const [result] = await dbconn.execute('SELECT `tag_id`, `name`, `is_distractor` FROM `521tag`;');
     payload["success"] = true;
     payload["tags"] = result;
+    payload["tags"].forEach((element) => {
+      if (element["is_distractor"] === "1" || element["is_distractor"] === 1) {
+        element["is_distractor"] = "true";
+      } else {
+        element["is_distractor"] = "false";
+      }
+    });
   }
   catch (err) {
     console.error(err);
@@ -72,7 +79,6 @@ app.post('/addTag', async (req, res) => {
   }
 });
 
-
 // API endpoint to get tag IDs
 app.post('/getScanResult', (req, res) => {
   const myMap = {};
@@ -120,7 +126,7 @@ app.post('/editTag', async (req, res) => {
     return;
   }
 
-  const { name: data_name, is_distractor: data_is_distractor } = req.body;
+  let { name: data_name, is_distractor: data_is_distractor } = req.body;
   
   if (data_name === undefined || data_is_distractor === undefined) {
     payload["success"] = false;

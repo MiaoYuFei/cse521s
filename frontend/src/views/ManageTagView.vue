@@ -19,9 +19,9 @@
                 >Tag ID</label>
                 <input
                   id="idNewTagId"
+                  v-model="new_tag_id"
                   type="text"
                   class="form-control"
-                  v-model="tag_id"
                   required
                 >
               </div>
@@ -32,9 +32,9 @@
                 >Tag Name</label>
                 <input
                   id="idNewName"
+                  v-model="new_name"
                   type="text"
                   class="form-control"
-                  v-model="name"
                   required
                 >
               </div>
@@ -57,7 +57,7 @@
                     class="btn-check"
                     name="btnradio"
                     autocomplete="off"
-                    checked
+                    @click="new_is_distractor = true;"
                   >
                   <label
                     class="btn btn-outline-primary"
@@ -70,6 +70,8 @@
                     class="btn-check"
                     name="btnradio"
                     autocomplete="off"
+                    checked
+                    @click="new_is_distractor = false;"
                   >
                   <label
                     class="btn btn-outline-primary"
@@ -97,18 +99,13 @@
                 <th>Operations</th>
               </thead>
               <tbody>
-                <tr
+                <TagTableRow
                   v-for="item in tagList"
                   :key="item.tag_id"
-                >
-                  <td>{{ item.tag_id }}</td>
-                  <td>{{ item.name }}</td>
-                  <td>{{ item.is_distractor }}</td>
-                  <td>
-                    <button class="btn btn-sm btn-primary mx-2">Edit</button>
-                    <button class="btn btn-sm btn-danger mx-2" @click="deleteTag(item.tag_id)">Delete</button>
-                  </td>
-                </tr>
+                  :item="item"
+                  @save="saveChanges"
+                  @delete="deleteTag"
+                />
               </tbody>
             </table>
           </div>
@@ -120,6 +117,7 @@
 
 <script lang="ts">
 import BsNavbar from "@/components/BsNavbar.vue";
+import TagTableRow from "@/components/TagTableRow.vue";
 import axios from "axios";
 
 interface TagItem {
@@ -127,51 +125,54 @@ interface TagItem {
   name: string;
   is_distractor: boolean;
 }
+
 export default {
   name: "ManageTagView",
-  components: { BsNavbar },
-  props: {
-  },
+  components: { BsNavbar, TagTableRow },
   data() {
     return {
-      tag_id: "",
-      name: "",
+      new_tag_id: "",
+      new_name: "",
+      new_is_distractor: false,
       tagList: [] as TagItem[],
     };
   },
   mounted() {
-        // Fetch tag IDs every second
-        this.fetchTagIds();
-    },
+    this.fetchAllTags();
+  },
   methods: {
-     fetchTagIds() {
-        axios.post('/api/getAllTags').then((response) => {
-          if (response.data.success) {
-          // Assign the 'tags' to the data property
-          this.tagList = response.data.tags;
-          console.log(this.tagList);
+    fetchAllTags() {
+      axios.post('/api/getAllTags').then((response) => {
+        if (response.data.success) {
+          this.tagList = [];
+          response.data.tags.forEach((element: { tag_id: string; name: string; is_distractor: string; }) => {
+            (this.tagList as TagItem[]).push({
+              tag_id: element.tag_id,
+              name: element.name,
+              is_distractor: element.is_distractor === "true" ? true : false
+            } as TagItem);
+          });
         } else {
           console.error("API response indicates failure");
-          // Handle the case where success is false
         }
-        });   
+      });
+    },
+    saveChanges(updatedItem: TagItem) {
+      // TODO: Update tag using edit API
+      console.log(updatedItem);
     },
     deleteTag(tagId: string) {
-      // Replace the URL with your backend API endpoint
       const backendURL = "/api/deleteTag";
       const dataToSend = {
         tagId: tagId,
-      }; 
+      };
       axios
-        .post(backendURL,dataToSend)
+        .post(backendURL, dataToSend)
         .then((response) => {
-          console.log('Backend response:', response.data);
           if (response.data.success) {
-            // Call a method to refresh the list of tags after successful deletion
-            this.fetchTagIds();
+            this.fetchAllTags();
           } else {
-            console.error('API response indicates failure');
-            // Handle the case where success is false
+            console.error("API response indicates failure");
           }
         })
         .catch((error) => {
@@ -179,32 +180,36 @@ export default {
         });
     },
     addTag() {
-      // Replace the URL with your backend API endpoint
+      if (this.new_tag_id === null || this.new_tag_id === "" ||
+        this.new_name === null || this.new_name === "") {
+        alert("Tag information can not be empty!");
+        return false;
+      }
       const backendURL = "/api/addTag";
-
-      // Replace this with the data you want to send to the backend
       const dataToSend = {
-        tag_id: this.tag_id,
-        name: this.name,
-        is_distractor: "true",
+        tag_id: this.new_tag_id,
+        name: this.new_name,
+        is_distractor: this.new_is_distractor ? "true" : "false",
       };
-      
+
       axios
         .post(backendURL, dataToSend)
         .then((response) => {
           console.log("Backend response:", response.data);
           if (response.data.success) {
-          // Assign the 'tags' to the data property
-          this.fetchTagIds();
-        } else {
-          console.error("API response indicates failure");
-          // Handle the case where success is false
-        }
+            this.new_tag_id = "";
+            this.new_name = "";
+            this.new_is_distractor = false;
+            document.getElementById("idNewNotDistractor")?.click();
+            this.fetchAllTags();
+          } else {
+            console.error("API response indicates failure");
+          }
         })
         .catch((error) => {
           console.error("Error sending data to the backend:", error);
         });
-      }
-    },
-  };
+    }
+  },
+};
 </script>

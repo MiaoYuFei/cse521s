@@ -66,32 +66,28 @@ import BsNavbar from "@/components/BsNavbar.vue";
 import axios from "axios";
 
 export default {
-    name: "HomeView",
-    components: { BsNavbar },
-    data() {
-        return {
-            tagIds: [],
-        };
+  name: "HomeView",
+  components: { BsNavbar },
+  data() {
+    return {
+      tagIds: [],
+    };
+  },
+  mounted() {
+    // Fetch tag IDs every second
+    this.fetchTagIds();
+    setInterval(this.fetchTagIds, 1000);
+  },
+  methods: {
+    fetchTagIds() {
+      axios.post("/api/getScanResult").then((response) => {
+        this.tagIds = response.data.tags;
+      })
+        .catch((error) => {
+          console.error("Error fetching tag IDs:", error);
+        }
+        );
     },
-    mounted() {
-        // Fetch tag IDs every second
-        this.fetchTagIds();
-        setInterval(this.fetchTagIds, 1000);
-    },
-    methods: {
-        navigateToManageTag() {
-            this.$router.push("/ManageTag");
-        },
-        async fetchTagIds() {
-            try {
-                // actual backend API endpoint
-                const response = await axios.post("/api/getScanResult");
-                this.tagIds = response.data.tags; //  an array of tag IDs
-            }
-            catch (error) {
-                console.error("Error fetching tag IDs:", error);
-            }
-        },
-    }
+  }
 };
 </script>
