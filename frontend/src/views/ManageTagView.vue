@@ -48,25 +48,12 @@
                 <label
                   for="idNewName"
                   class="form-label"
-                >Is it distractor</label>
+                >Is it required</label>
                 <div
                   class="btn-group form-control"
                   role="group"
                   aria-label="Is it a distractor"
                 >
-                  <input
-                    id="idNewIsDistractor"
-                    type="radio"
-                    class="btn-check"
-                    name="btnradio"
-                    autocomplete="off"
-                    @click="new_is_distractor = true;"
-                  >
-                  <label
-                    class="btn btn-outline-primary"
-                    for="idNewIsDistractor"
-                  >Yes</label>
-
                   <input
                     id="idNewNotDistractor"
                     type="radio"
@@ -79,7 +66,21 @@
                   <label
                     class="btn btn-outline-primary"
                     for="idNewNotDistractor"
-                  >No</label>
+                  >
+                    <i class="bi bi-check" />Yes</label>
+                  <input
+                    id="idNewIsDistractor"
+                    type="radio"
+                    class="btn-check"
+                    name="btnradio"
+                    autocomplete="off"
+                    @click="new_is_distractor = true;"
+                  >
+                  <label
+                    class="btn btn-outline-primary"
+                    for="idNewIsDistractor"
+                  >
+                    <i class="bi bi-x" />No</label>
                 </div>
               </div>
 
@@ -89,6 +90,7 @@
                   class="btn btn-primary"
                   @click="addTag()"
                 >
+                  <i class="bi bi-file-earmark-plus" />
                   Add
                 </button>
               </div>
@@ -98,7 +100,7 @@
               <thead>
                 <th>Tag Id</th>
                 <th>Name</th>
-                <th>Is Distractor</th>
+                <th>Required</th>
                 <th>Operations</th>
               </thead>
               <tbody>

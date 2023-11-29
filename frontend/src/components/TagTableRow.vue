@@ -15,7 +15,15 @@
     </td>
 
     <td v-if="!editing">
-      {{ item.is_distractor }}
+      <i
+        v-if="item.is_distractor"
+        class="bi bi-x"
+      />
+      <i
+        v-if="!item.is_distractor"
+        class="bi bi-check"
+      />
+      {{ item.is_distractor ? "No" : "Yes" }}
     </td>
     <td v-else>
       <div
@@ -23,20 +31,6 @@
         role="group"
         aria-label="Is it a distractor"
       >
-        <input
-          id="idEditIsDistractor"
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          autocomplete="off"
-          :checked="editedItem.is_distractor === true"
-          @click="editedItem.is_distractor = true;"
-        >
-        <label
-          class="btn btn-sm btn-outline-primary"
-          for="idEditIsDistractor"
-        >Yes</label>
-
         <input
           id="idEditNotDistractor"
           type="radio"
@@ -49,7 +43,22 @@
         <label
           class="btn btn-sm btn-outline-primary"
           for="idEditNotDistractor"
-        >No</label>
+        >
+          <i class="bi bi-check" />Yes</label>
+        <input
+          id="idEditIsDistractor"
+          type="radio"
+          class="btn-check"
+          name="btnradio"
+          autocomplete="off"
+          :checked="editedItem.is_distractor === true"
+          @click="editedItem.is_distractor = true;"
+        >
+        <label
+          class="btn btn-sm btn-outline-primary"
+          for="idEditIsDistractor"
+        >
+          <i class="bi bi-x" />No</label>
       </div>
     </td>
 
@@ -59,7 +68,15 @@
         type="button"
         @click="toggleEdit(false)"
       >
-        {{ editing ? 'Save' : 'Edit' }}
+        <i
+          v-if="editing"
+          class="bi bi-floppy"
+        />
+        <i
+          v-if="!editing"
+          class="bi bi-pencil-square"
+        />
+        {{ editing ? "Save" : "Edit" }}
       </button>
       <button
         v-if="editing"
@@ -67,6 +84,7 @@
         type="button"
         @click="toggleEdit(true)"
       >
+        <i class="bi bi-ban" />
         Cancel
       </button>
       <button
@@ -75,6 +93,7 @@
         type="button"
         @click="deleteTag(item.tag_id)"
       >
+        <i class="bi bi-trash" />
         Delete
       </button>
     </td>

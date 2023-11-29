@@ -10,7 +10,7 @@
           <h1 class="card-title">
             <i
               class="bi bi-tag"
-              style="color: rgb(0, 217, 255);"
+              style="color: rgb(94, 94, 94);"
             />Tag Ids
           </h1>
           <div class="card-text">
@@ -116,7 +116,7 @@ import axios from "axios";
 
 export default {
   name: "HomeView",
-  components: { BsNavbar, TagItem },
+  components: { BsNavbar },
   data() {
     return {
       tags: [] as TagItem[],
