@@ -8,7 +8,10 @@
       <div class="card m-2">
         <div class="card-body">
           <h1 class="card-title">
-            Tag Manager
+            <i
+              class="bi bi-gear"
+              style="color: rgb(94, 94, 94);"
+            />Tag Manager
           </h1>
           <div class="card-text">
             <form>
@@ -164,11 +167,10 @@ export default {
         return false;
       }
       const backendURL = "/api/editTag";
-      // TODO: Update tag using edit API
       const updatedData = {
         tag_id: updatedItem.tag_id,
         name: updatedItem.name,
-        is_distractor: updatedItem.is_distractor ? "true" : "false",
+        is_distractor: updatedItem.is_distractor,
       };
       axios
         .post(backendURL, updatedData)

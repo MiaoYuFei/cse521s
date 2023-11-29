@@ -79,23 +79,37 @@ app.post('/addTag', async (req, res) => {
   }
 });
 
-// API endpoint to get scan tag IDs
 app.post('/getScanResult', async (req, res) => {
   const tagsIdArray = tagsList.slice();
   const myMap = {
     "success": false,
     "tags":[],
   };
+  if (tagsIdArray.length <= 0) {
+    myMap["success"] = true;
+    res.json(myMap);
+    return;
+  }
   try {
-    const query = 'SELECT `tag_id`, `name`, `is_distractor` FROM `521tag` WHERE `tag_id` IN (?)';
-    const [result] = await dbconn.execute(query, [tagsIdArray]);
+    const query = `SELECT \`tag_id\`, \`name\`, \`is_distractor\` FROM \`521tag\` WHERE \`tag_id\` IN (${tagsIdArray.map(() => '?').join(',')})`;
+    const [result] = await dbconn.execute(query, tagsIdArray);
     myMap["success"] = true;
     result.forEach((element) => {
       if (element["is_distractor"] === "1" || element["is_distractor"] === 1) {
-        element["is_distractor"] = "true";
+        element["is_distractor"] = true;
       } else {
-        element["is_distractor"] = "false";
+        element["is_distractor"] = false;
       }
+    });
+    const idsInList = result.map((item) => item.tag_id);
+    const idsNotInList = tagsIdArray.filter((id) => !idsInList.includes(id));
+    idsNotInList.forEach((element) => {
+      const item = {
+        "tag_id": element,
+        "name": null,
+        "is_distractor": true
+      };
+      result.push(item);
     });
     myMap["tags"] = result;
   }
@@ -109,7 +123,6 @@ app.post('/getScanResult', async (req, res) => {
   }
 });
 
-//delete a tag by its ID
 app.post('/deleteTag', async(req, res) => {
   let payload = {
     "success": false
@@ -133,7 +146,6 @@ app.post('/deleteTag', async(req, res) => {
   }
 });
 
-//edit the tag
 app.post('/editTag', async (req, res) => {
   let payload = {
     "success": false
@@ -152,7 +164,7 @@ app.post('/editTag', async (req, res) => {
     res.status(400).json(payload);
     return;
   }
-  if (data_is_distractor === "true") {
+  if (data_is_distractor === "true" || data_is_distractor === true) {
     data_is_distractor = 1;
   } else {
     data_is_distractor = 0;
