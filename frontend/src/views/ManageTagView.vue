@@ -157,14 +157,39 @@ export default {
         }
       });
     },
+
     saveChanges(updatedItem: TagItem) {
+      if (updatedItem.name === null || updatedItem.name === "") {
+        alert("Tag name can not be empty!");
+        return false;
+      }
+      const backendURL = "/api/editTag";
       // TODO: Update tag using edit API
+      const updatedData = {
+        tag_id: updatedItem.tag_id,
+        name: updatedItem.name,
+        is_distractor: updatedItem.is_distractor ? "true" : "false",
+      };
+      axios
+        .post(backendURL, updatedData)
+        .then((response) => {
+          if (response.data.success) {
+            console.log('Tag updated successfully');
+            this.fetchAllTags();
+          } else {
+            console.error('API response indicates failure');
+          }
+        })
+        .catch((error) => {
+          console.error('Error updating tag:', error);
+        });
       console.log(updatedItem);
     },
-    deleteTag(tagId: string) {
+
+    deleteTag(tag_id: string) {
       const backendURL = "/api/deleteTag";
       const dataToSend = {
-        tagId: tagId,
+        tag_id: tag_id,
       };
       axios
         .post(backendURL, dataToSend)
@@ -179,6 +204,7 @@ export default {
           console.error('Error sending data to the backend:', error);
         });
     },
+
     addTag() {
       if (this.new_tag_id === null || this.new_tag_id === "" ||
         this.new_name === null || this.new_name === "") {
