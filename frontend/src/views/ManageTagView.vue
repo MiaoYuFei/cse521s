@@ -96,23 +96,25 @@
               </div>
             </form>
             <hr>
-            <table class="table table-bordered table-striped">
-              <thead>
-                <th>Tag Id</th>
-                <th>Name</th>
-                <th>Required</th>
-                <th>Operations</th>
-              </thead>
-              <tbody>
-                <TagTableRow
-                  v-for="item in tagList"
-                  :key="item.tag_id"
-                  :item="item"
-                  @save="saveChanges"
-                  @delete="deleteTag"
-                />
-              </tbody>
-            </table>
+            <div style="overflow-x: auto;">
+              <table class="table table-bordered table-striped">
+                <thead>
+                  <th>Tag Id</th>
+                  <th>Name</th>
+                  <th>Required</th>
+                  <th>Operations</th>
+                </thead>
+                <tbody>
+                  <TagTableRow
+                    v-for="item in tagList"
+                    :key="item.tag_id"
+                    :item="item"
+                    @save="saveChanges"
+                    @delete="deleteTag"
+                  />
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
