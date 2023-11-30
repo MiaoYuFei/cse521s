@@ -1,5 +1,4 @@
-import { promises as fsPromises, constants } from 'fs';
-const { access, unlink } = fsPromises;
+import { unlinkSync, existsSync } from 'fs';
 import express from "express";
 import bodyParser from "body-parser";
 import { iot, mqtt, io } from "aws-iot-device-sdk-v2";
@@ -233,15 +232,11 @@ async function onIotStatusReceived(topic, payload, dup, qos, retain) {
   console.log(json);
 }
 
-// Listen for API requests
-if (process.env.SOCK) {
-  try {
-    access(process.env.SOCK, constants.F_OK);
-    unlink(process.env.SOCK);
-  } catch (err) {
-  }
+if (process.env.SOCK && existsSync(process.env.SOCK)) {
+  unlink(process.env.SOCK);
 }
 
+// Listen for API requests
 const endpoint = process.env.SOCK || process.env.PORT || 3000;
 app.listen(endpoint, () => {
   console.log(`Server is running on port ${endpoint}`);
