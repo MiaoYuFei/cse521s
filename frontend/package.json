@@ -5,9 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "preview": "vite preview",
-    "test:unit": "vitest --root src/",
+    "build": "vue-tsc --noEmit && vite build",
     "lint": "eslint --ext .vue,.js,.ts src --fix"
   },
   "license": "MIT",
