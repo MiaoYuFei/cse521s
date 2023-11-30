@@ -232,7 +232,7 @@ async function onIotStatusReceived(topic, payload, dup, qos, retain) {
 }
 
 // Listen for API requests
-const port = process.env.PORT || 3000;
+const port = process.env.SOCK || process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

@@ -17,3 +17,8 @@ RM="rm -rf"
 MKDIR="mkdir -p"
 CHOWN="chown -R"
 PM2="pm2"
+
+$MKDIR /var/www/.pm2
+$MKDIR /var/www/.npm
+$CHOWN $WEB_USER:$WEB_USER /var/www/.pm2
+$CHOWN $WEB_USER:$WEB_USER /var/www/.npm
