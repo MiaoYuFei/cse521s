@@ -1,21 +1,21 @@
-import express from 'express';
-import bodyParser from 'body-parser';
+import express from "express";
+import bodyParser from "body-parser";
 import { iot, mqtt, io } from "aws-iot-device-sdk-v2";
-const decoder = new TextDecoder('utf8');
-import dbconn from './dbConfig.js';
+const decoder = new TextDecoder("utf8");
+import dbconn from "./dbConfig.js";
 
 const app = express();
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/getAllTags', async (req, res) => {
+app.post("/api/getAllTags", async (req, res) => {
   let payload = {
     "success": false
   };
 
   try {
-    const [result] = await dbconn.execute('SELECT `tag_id`, `name`, `is_distractor` FROM `521tag`;');
+    const [result] = await dbconn.execute("SELECT `tag_id`, `name`, `is_distractor` FROM `521tag`;");
     payload["success"] = true;
     payload["tags"] = result;
     payload["tags"].forEach((element) => {
@@ -36,7 +36,7 @@ app.post('/getAllTags', async (req, res) => {
   }
 });
 
-app.post('/addTag', async (req, res) => {
+app.post("/api/addTag", async (req, res) => {
   let payload = {
     "success": false
   };
@@ -60,7 +60,7 @@ app.post('/addTag', async (req, res) => {
     data_is_distractor = 0;
   }
   try {
-    const [result] = await dbconn.execute('INSERT INTO `521tag` (`tag_id`, `name`, `is_distractor`) VALUES (?, ?, ?);',
+    const [result] = await dbconn.execute("INSERT INTO `521tag` (`tag_id`, `name`, `is_distractor`) VALUES (?, ?, ?);",
       [data_tag_id, data_name, data_is_distractor]);
     if (result.affectedRows <= 0) {
       payload["success"] = false;
@@ -79,7 +79,7 @@ app.post('/addTag', async (req, res) => {
   }
 });
 
-app.post('/getScanResult', async (req, res) => {
+app.post("/api/getScanResult", async (req, res) => {
   const tagsIdArray = tagsList.slice();
   const myMap = {
     "success": false,
@@ -91,7 +91,7 @@ app.post('/getScanResult', async (req, res) => {
     return;
   }
   try {
-    const query = `SELECT \`tag_id\`, \`name\`, \`is_distractor\` FROM \`521tag\` WHERE \`tag_id\` IN (${tagsIdArray.map(() => '?').join(',')})`;
+    const query = `SELECT \`tag_id\`, \`name\`, \`is_distractor\` FROM \`521tag\` WHERE \`tag_id\` IN (${tagsIdArray.map(() => "?").join(",")})`;
     const [result] = await dbconn.execute(query, tagsIdArray);
     myMap["success"] = true;
     result.forEach((element) => {
@@ -123,14 +123,14 @@ app.post('/getScanResult', async (req, res) => {
   }
 });
 
-app.post('/deleteTag', async(req, res) => {
+app.post("/api/deleteTag", async(req, res) => {
   let payload = {
     "success": false
   };
   
   const tag_id = req.body.tag_id; 
   try {
-    const [result] = await dbconn.execute('DELETE FROM `521tag` WHERE `tag_id` = ?;', [tag_id]);
+    const [result] = await dbconn.execute("DELETE FROM `521tag` WHERE `tag_id` = ?;", [tag_id]);
   
     if (result.affectedRows === 1) {
       payload["success"] = true;
@@ -146,7 +146,7 @@ app.post('/deleteTag', async(req, res) => {
   }
 });
 
-app.post('/editTag', async (req, res) => {
+app.post("/api/editTag", async (req, res) => {
   let payload = {
     "success": false
   };
@@ -171,7 +171,7 @@ app.post('/editTag', async (req, res) => {
   }
   
   try {
-    const [result] = await dbconn.execute('UPDATE `521tag` SET `name` = ?, `is_distractor` = ? WHERE `tag_id` = ?;',
+    const [result] = await dbconn.execute("UPDATE `521tag` SET `name` = ?, `is_distractor` = ? WHERE `tag_id` = ?;",
       [data_name, data_is_distractor, tag_id]);
   
     if (result.affectedRows === 1) {
@@ -206,7 +206,7 @@ iotConn.on("connect", () => {
   iotConn.subscribe(iotTopicStatus, mqtt.QoS.AtLeastOnce, onIotStatusReceived);
   iotConn.subscribe(iotTopicTagScanResult, mqtt.QoS.AtLeastOnce, onIotTagScanResultReceived);
 });
-iotConn.on('disconnect', (eventData) => {
+iotConn.on("disconnect", (eventData) => {
   console.log("[AWS IoT] Disconnected: " + eventData);
 });
 iotConn.on("error", (eventData) => {
@@ -238,7 +238,7 @@ app.listen(port, () => {
 });
 
 // Close db connection when exit
-process.on('SIGINT', async () => {
+process.on("SIGINT", async () => {
   await dbconn.end();
   process.exit();
 });
